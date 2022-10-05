@@ -121,12 +121,16 @@ def gradient_descent(X, y, w_in, b_in, cost_function,
     return w, b, J_history
 
 def main() :
-  X, y =visualize_data()
+  X, y = visualize_data()
   test.compute_cost_test(compute_cost)
   test.compute_gradient_test(compute_gradient)
-  X, mu, sigma = zscore_normalize_features(X)
-  w, b, J_hist = gradient_descent(X, y, [0, 0, 0, 0], 0, compute_cost, compute_gradient, 0.02, 1500)
-  x = [1200, 3, 1, 40]
+  Xnorm, mu, sigma = zscore_normalize_features(X)
+  #y, mu, sigma = zscore_normalize_features(y)
+  b_init = 785.1811367994083
+  w_init = np.array([0.39133535, 18.75376741, -53.36032453, -26.42131618])
+  w, b, J_hist = gradient_descent(Xnorm, y, w_init, b_init, compute_cost, compute_gradient, 0.1, 1500)
+  x = np.array([1200.0, 3.0, 1.0, 40.0])
+  x = (x - mu)/sigma
   print(np.dot(w, x)+ b)
 
 main()
