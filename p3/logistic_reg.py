@@ -4,6 +4,11 @@ import copy
 import math
 import public_tests as tests
 
+def read_data():
+  data=np.loadtxt("./data/ex2data1.txt",delimiter=',',skiprows=0) 
+  X_train=data[:,:2] 
+  y_train=data[:,2] 
+  return X_train, y_train
 
 def sigmoid(z):
     """
@@ -60,8 +65,15 @@ def compute_gradient(X, y, w, b, lambda_=None):
       dj_db: (scalar)                The gradient of the cost w.r.t. the parameter b.
       dj_dw: (array_like Shape (n,1)) The gradient of the cost w.r.t. the parameters w.
     """
+    dj_db = 0
+    dj_dw = np.zeros(len(X[0]))
+    m = len(X) 
 
-    return dj_db, dj_dw
+    for i in range (m):
+      dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
+      dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i] )* X[i]
+
+    return dj_db / m, dj_dw / m
 
 
 #########################################################################
@@ -79,7 +91,14 @@ def compute_cost_reg(X, y, w, b, lambda_=1):
     Returns:
       total_cost: (scalar)         cost 
     """
+    cost = 0
+    w_total = np.sum((w**2))
 
+    m = len(X)
+    for i in range(m):
+      cost += (-y[i] * np.log(sigmoid(np.dot(w, X[i]) + b))) - (1 - y[i]) * np.log(1 - sigmoid(np.dot(w, X[i]) + b))
+
+    total_cost = (cost/m) + ((lambda_*w_total)/(2*m))
     return total_cost
 
 
@@ -98,8 +117,15 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
       dj_dw: (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
 
     """
+    dj_db = 0
+    dj_dw = np.zeros(len(X[0]))
+    m = len(X) 
+    
+    for i in range (m):
+      dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
+      dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i] )* X[i]
 
-    return dj_db, dj_dw
+    return dj_db / m, (dj_dw / m) + (lambda_/m*w)
 
 
 #########################################################################
@@ -128,6 +154,15 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
       J_history : (ndarray): Shape (num_iters,) J at each iteration,
           primarily for graphing later
     """
+    J_history = []
+    w = copy.deepcopy(w_in) 
+    b = b_in
+
+    for i in range(num_iters):
+        gb, gw = gradient_function(X, y, w, b)
+        w -= alpha*gw
+        b -= alpha*gb
+        J_history += [cost_function(X, y, w, b)]
 
     return w, b, J_history
 
@@ -150,9 +185,32 @@ def predict(X, w, b):
         The predictions for X using a threshold at 0.5
     """
 
+    p = np.zeros(len(X))
+
+    for i in range(len(X)) :
+      if(sigmoid(np.dot(w, X[i]) + b) > 0.5) :
+        p[i] = 1.0
+
     return p
 
 def main() :
+  tests.sigmoid_test(sigmoid)
   tests.compute_cost_test(compute_cost)
+  tests.compute_gradient_test(compute_gradient)
+  tests.predict_test(predict)
+  tests.compute_cost_reg_test(compute_cost_reg)
+  tests.compute_gradient_reg_test(compute_gradient_reg)
+
+  #Test de la prediccion
+  # X, y = read_data()
+  # w, b, J_history = gradient_descent(X, y, [0,0], -8, compute_cost, compute_gradient, 0.001, 10000)
+  # p_Y = predict(X, w, b)
+  
+  # num_correct = 0
+  # for i in range(len(y)):
+  #   if p_Y[i] == y[i]:
+  #       num_correct += 1
+
+  # print(num_correct)
 
 main()
