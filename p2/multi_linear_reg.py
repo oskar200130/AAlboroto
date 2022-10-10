@@ -4,17 +4,20 @@ import math
 import matplotlib.pyplot as plt
 import public_tests as test
 
-def visualize_data():
-  data=np.loadtxt("./data/houses.txt",delimiter=',',skiprows=1) 
-  X_train=data[:,:4] 
-  y_train=data[:,4] 
+def visualize_data(X_train, y_train , y_pre):
   X_features=['size(sqft)','bedrooms','floors','age'] 
   fig,ax=plt.subplots(1,4,figsize=(25,5),sharey=True) 
   for i in range(len(ax)): 
     ax[i].scatter(X_train[:,i],y_train) 
+    ax[i].scatter(X_train[:,i],y_pre) 
     ax[i].set_xlabel(X_features[i]) 
   ax[0].set_ylabel("Price(1000's)")
   plt.show()
+
+def readData():
+  data=np.loadtxt("./data/houses.txt",delimiter=',',skiprows=1) 
+  X_train=data[:,:4] 
+  y_train=data[:,4]
   return X_train, y_train
 
 def zscore_normalize_features(X):
@@ -121,14 +124,16 @@ def gradient_descent(X, y, w_in, b_in, cost_function,
     return w, b, J_history
 
 def main() :
-  X, y = visualize_data()
+  X, y = readData()
   test.compute_cost_test(compute_cost)
   test.compute_gradient_test(compute_gradient)
   Xnorm, mu, sigma = zscore_normalize_features(X)
-  #y, mu, sigma = zscore_normalize_features(y)
   b_init = 785.1811367994083
   w_init = np.array([0.39133535, 18.75376741, -53.36032453, -26.42131618])
   w, b, J_hist = gradient_descent(Xnorm, y, w_init, b_init, compute_cost, compute_gradient, 0.1, 1500)
+  Ypre = np.dot(Xnorm, w)+ b
+  visualize_data(X, y, Ypre)
+
   x = np.array([1200.0, 3.0, 1.0, 40.0])
   x = (x - mu)/sigma
   print(np.dot(w, x)+ b)
