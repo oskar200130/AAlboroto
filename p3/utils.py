@@ -54,3 +54,5 @@ def plot_decision_boundary(w, b, X, y):
 
         # Plot z = 0
         plt.contour(u, v, z, levels=[0.5], colors="g")
+
+    plt.show()

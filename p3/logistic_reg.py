@@ -3,9 +3,10 @@ import numpy as np
 import copy
 import math
 import public_tests as tests
+import utils 
 
 def read_data():
-  data=np.loadtxt("./data/ex2data1.txt",delimiter=',',skiprows=0) 
+  data=np.loadtxt("./data/ex2data2.txt",delimiter=',',skiprows=0) 
   X_train=data[:,:2] 
   y_train=data[:,2] 
   return X_train, y_train
@@ -125,7 +126,7 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
       dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
       dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i] )* X[i]
 
-    return dj_db / m, (dj_dw / m) + (lambda_/m*w)
+    return dj_db / m, (dj_dw / m) + (np.dot(np.divide(lambda_, m), w))
 
 
 #########################################################################
@@ -157,7 +158,7 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
     J_history = []
     w = copy.deepcopy(w_in) 
     b = b_in
-
+    
     for i in range(num_iters):
         gb, gw = gradient_function(X, y, w, b)
         w -= alpha*gw
@@ -194,23 +195,26 @@ def predict(X, w, b):
     return p
 
 def main() :
-  tests.sigmoid_test(sigmoid)
-  tests.compute_cost_test(compute_cost)
-  tests.compute_gradient_test(compute_gradient)
-  tests.predict_test(predict)
-  tests.compute_cost_reg_test(compute_cost_reg)
-  tests.compute_gradient_reg_test(compute_gradient_reg)
+  # tests.sigmoid_test(sigmoid)
+  # tests.compute_cost_test(compute_cost)
+  # tests.compute_gradient_test(compute_gradient)
+  # tests.predict_test(predict)
+  # tests.compute_cost_reg_test(compute_cost_reg)
+  # tests.compute_gradient_reg_test(compute_gradient_reg)
 
   #Test de la prediccion
-  # X, y = read_data()
-  # w, b, J_history = gradient_descent(X, y, [0,0], -8, compute_cost, compute_gradient, 0.001, 10000)
-  # p_Y = predict(X, w, b)
+  X, y = read_data()
+  X = utils.map_feature(X[:, 0], X[:, 1])
+  w = np.zeros(27)
+  w, b, J_history = gradient_descent(X, y, w, 1, compute_cost_reg, compute_gradient_reg, 0.01, 10000, 0.01)
+  p_Y = predict(X, w, b)
+  utils.plot_decision_boundary(w, b, X,y)
   
-  # num_correct = 0
-  # for i in range(len(y)):
-  #   if p_Y[i] == y[i]:
-  #       num_correct += 1
+  num_correct = 0
+  for i in range(len(y)):
+    if p_Y[i] == y[i]:
+        num_correct += 1
 
-  # print(num_correct)
+  print(num_correct/len(y)*100)
 
 main()
