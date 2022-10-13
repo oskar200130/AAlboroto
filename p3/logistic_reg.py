@@ -205,7 +205,7 @@ def main() :
   #Test de la prediccion
   X, y = read_data()
   X = utils.map_feature(X[:, 0], X[:, 1])
-  w = np.zeros(27)
+  w = np.zeros(len(X[0]))
   w, b, J_history = gradient_descent(X, y, w, 1, compute_cost_reg, compute_gradient_reg, 0.01, 10000, 0.01)
   p_Y = predict(X, w, b)
   utils.plot_decision_boundary(w, b, X,y)
