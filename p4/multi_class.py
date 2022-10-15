@@ -1,5 +1,7 @@
 import numpy as np
-
+import utils
+import scipy.io as sc
+import logistic_reg as lgr
 
 #########################################################################
 # one-vs-all
@@ -27,7 +29,7 @@ def oneVsAll(X, y, n_labels, lambda_):
 
      Returns
      -------
-     all_theta : array_like
+     all_theta : array_like     
          The trained parameters for logistic regression for each class.
          This is a matrix of shape (K x n+1) where K is number of classes
          (ie. `n_labels`) and n is number of features without the bias.
@@ -94,3 +96,12 @@ def predict(theta1, theta2, X):
     """
 
     return p
+
+def main():
+    data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
+    X = data['X']
+    y = data['y']
+    rand_indices = np.random.choice(X.shape[0], 100, replace=False)
+    utils.displayData(X[rand_indices, :])
+
+main()

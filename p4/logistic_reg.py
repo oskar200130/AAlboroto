@@ -2,7 +2,6 @@ from ctypes import sizeof
 import numpy as np
 import copy
 import math
-import public_tests as tests
 import utils 
 
 def read_data():
@@ -25,54 +24,6 @@ def sigmoid(z):
     g = 1/(1+np.exp(z*-1))
 
     return g
-
-
-#########################################################################
-# logistic regression
-#
-def compute_cost(X, y, w, b, lambda_=None):
-    """
-    Computes the cost over all examples
-    Args:
-      X : (ndarray Shape (m,n)) data, m examples by n features
-      y : (array_like Shape (m,)) target value
-      w : (array_like Shape (n,)) Values of parameters of the model
-      b : scalar Values of bias parameter of the model
-      lambda_: unused placeholder
-    Returns:
-      total_cost: (scalar)         cost
-    """
-    
-    cost = 0
-    m = len(X)
-    
-    cost = np.sum(-y * np.log(sigmoid(X @ w + b)) - (1-y) * np.log(1 - sigmoid(X @ w + b)))
-
-    return cost/m
-
-
-def compute_gradient(X, y, w, b, lambda_=None):
-    """
-    Computes the gradient for logistic regression
-
-    Args:
-      X : (ndarray Shape (m,n)) variable such as house size
-      y : (array_like Shape (m,1)) actual value
-      w : (array_like Shape (n,1)) values of parameters of the model
-      b : (scalar)                 value of parameter of the model
-      lambda_: unused placeholder
-    Returns
-      dj_db: (scalar)                The gradient of the cost w.r.t. the parameter b.
-      dj_dw: (array_like Shape (n,1)) The gradient of the cost w.r.t. the parameters w.
-    """
-    dj_db = 0
-    dj_dw = np.zeros(len(X[0]))
-    m = len(X) 
-
-    dj_db = np.sum(sigmoid(X @ w + b) - y)
-    dj_dw = (sigmoid(X @ w + b) - y) @ X
-
-    return dj_db / m, dj_dw / m
 
 
 #########################################################################
@@ -190,29 +141,3 @@ def predict(X, w, b):
         p[i] = 1.0
 
     return p
-
-def main() :
-  # tests.sigmoid_test(sigmoid)
-  # tests.compute_cost_test(compute_cost)
-  # tests.compute_gradient_test(compute_gradient)
-  # tests.predict_test(predict)
-  # tests.compute_cost_reg_test(compute_cost_reg)
-  # tests.compute_gradient_reg_test(compute_gradient_reg)
-
-  # Test de la prediccion
-  
-  X, y = read_data()
-  X = utils.map_feature(X[:, 0], X[:, 1])
-  w = np.zeros(len(X[0]))
-  w, b, J_history = gradient_descent(X, y, w, 1, compute_cost_reg, compute_gradient_reg, 0.01, 10000, 0.01)
-  p_Y = predict(X, w, b)
-  utils.plot_decision_boundary(w, b, X,y)
-  
-  num_correct = 0
-  for i in range(len(y)):
-    if p_Y[i] == y[i]:
-        num_correct += 1
-
-  print(num_correct/len(y)*100)
-
-main()
