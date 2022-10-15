@@ -22,7 +22,6 @@ def sigmoid(z):
         g (ndarray): sigmoid(z), with the same shape as z
 
     """
-    #for i in range(len(z)):
     g = 1/(1+np.exp(z*-1))
 
     return g
@@ -45,9 +44,10 @@ def compute_cost(X, y, w, b, lambda_=None):
     """
 
     cost = 0
+    cost2 = 0
     m = len(X)
-    for i in range(m):
-      cost += (-y[i] * np.log(sigmoid(np.dot(w, X[i]) + b))) - (1 - y[i]) * np.log(1 - sigmoid(np.dot(w, X[i]) + b))
+    
+    cost = np.sum(-y * np.log(sigmoid(X @ w + b)) - (1-y) * np.log(1 - sigmoid(X @ w + b)))
 
     return cost/m
 
@@ -70,9 +70,8 @@ def compute_gradient(X, y, w, b, lambda_=None):
     dj_dw = np.zeros(len(X[0]))
     m = len(X) 
 
-    for i in range (m):
-      dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
-      dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i] )* X[i]
+    dj_db = np.sum(sigmoid(X @ w + b) - y)
+    dj_dw = (sigmoid(X @ w + b) - y) @ X
 
     return dj_db / m, dj_dw / m
 
@@ -96,8 +95,8 @@ def compute_cost_reg(X, y, w, b, lambda_=1):
     w_total = np.sum((w**2))
 
     m = len(X)
-    for i in range(m):
-      cost += (-y[i] * np.log(sigmoid(np.dot(w, X[i]) + b))) - (1 - y[i]) * np.log(1 - sigmoid(np.dot(w, X[i]) + b))
+
+    cost = np.sum(-y * np.log(sigmoid(X @ w + b)) - (1-y) * np.log(1 - sigmoid(X @ w + b)))
 
     total_cost = (cost/m) + ((lambda_*w_total)/(2*m))
     return total_cost
@@ -121,10 +120,9 @@ def compute_gradient_reg(X, y, w, b, lambda_=1):
     dj_db = 0
     dj_dw = np.zeros(len(X[0]))
     m = len(X) 
-    
-    for i in range (m):
-      dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
-      dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i] )* X[i]
+
+    dj_db = np.sum(sigmoid(X @ w + b) - y)
+    dj_dw = (sigmoid(X @ w + b) - y) @ X
 
     return dj_db / m, (dj_dw / m) + (np.dot(np.divide(lambda_, m), w))
 
@@ -202,7 +200,8 @@ def main() :
   # tests.compute_cost_reg_test(compute_cost_reg)
   # tests.compute_gradient_reg_test(compute_gradient_reg)
 
-  #Test de la prediccion
+  # Test de la prediccion
+  
   X, y = read_data()
   X = utils.map_feature(X[:, 0], X[:, 1])
   w = np.zeros(len(X[0]))
