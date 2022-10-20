@@ -34,6 +34,15 @@ def oneVsAll(X, y, n_labels, lambda_):
          This is a matrix of shape (K x n+1) where K is number of classes
          (ie. `n_labels`) and n is number of features without the bias.
      """
+    all_theta = np.zeros((n_labels, X.shape[1] + 1))
+
+    for i in range(n_labels):
+        w = np.zeros(len(X[0]))
+        b = 0
+        y_aux = np.where(y == i, 1, 0)
+        wf, bf, jHis = lgr.gradient_descent(X, y_aux, w, b, lgr.compute_cost_reg, lgr.compute_gradient_reg, 0.01, 1500, lambda_)
+        all_theta[i, 0] = bf 
+        all_theta[i, 1:] = wf
 
     return all_theta
 
@@ -64,6 +73,9 @@ def predictOneVsAll(all_theta, X):
     p : array_like
         The predictions for each data point in X. This is a vector of shape (m, ).
     """
+    p = np.zeros(len(X))
+
+    p = np.argmax(lgr.sigmoid(X @ all_theta[:, 1:].T + all_theta[:, 0]), 1)
 
     return p
 
@@ -103,5 +115,13 @@ def main():
     y = data['y']
     rand_indices = np.random.choice(X.shape[0], 100, replace=False)
     utils.displayData(X[rand_indices, :])
+    Theta = oneVsAll(X, y, 10, 1)
+    yP = predictOneVsAll(Theta, X)
+    count = 0
+    for i in range(len(y)):
+        if(y[i] == yP[i]) :
+            count+=1
+
+    print(count/len(y)*100)
 
 main()
