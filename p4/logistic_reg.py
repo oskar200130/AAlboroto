@@ -108,10 +108,10 @@ def gradient_descent(X, y, w_in, b_in, cost_function, gradient_function, alpha, 
     b = b_in
     
     for i in range(num_iters):
-        gb, gw = gradient_function(X, y, w, b)
+        gb, gw = gradient_function(X, y, w, b, lambda_)
         w -= alpha*gw
         b -= alpha*gb
-        J_history += [cost_function(X, y, w, b)]
+        J_history += [cost_function(X, y, w, b, lambda_)]
 
     return w, b, J_history
 

@@ -40,7 +40,7 @@ def oneVsAll(X, y, n_labels, lambda_):
         w = np.zeros(len(X[0]))
         b = 0
         y_aux = np.where(y == i, 1, 0)
-        wf, bf, jHis = lgr.gradient_descent(X, y_aux, w, b, lgr.compute_cost_reg, lgr.compute_gradient_reg, 0.01, 1500, lambda_)
+        wf, bf, jHis = lgr.gradient_descent(X, y_aux, w, b, lgr.compute_cost_reg, lgr.compute_gradient_reg, 1, 1500, lambda_)
         all_theta[i, 0] = bf 
         all_theta[i, 1:] = wf
 
@@ -115,7 +115,7 @@ def main():
     y = data['y']
     rand_indices = np.random.choice(X.shape[0], 100, replace=False)
     utils.displayData(X[rand_indices, :])
-    Theta = oneVsAll(X, y, 10, 1)
+    Theta = oneVsAll(X, y, 10, 0.75)
     yP = predictOneVsAll(Theta, X)
     count = 0
     for i in range(len(y)):
