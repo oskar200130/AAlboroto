@@ -1,3 +1,4 @@
+from copy import deepcopy
 import numpy as np
 import utils
 import scipy.io as sc
@@ -106,22 +107,38 @@ def predict(theta1, theta2, X):
         Predictions vector containing the predicted label for each example.
         It has a length equal to the number of examples.
     """
-
-    return p
+    #X_b = deepcopy(X)
+    a1 = np.c_[np.ones(len(X)), X]          #Size(5000 * 401)
+    z2 = np.dot(theta1, a1.T)           
+    a2 = lgr.sigmoid(z2)
+    a2 = np.c_[np.ones(len(a2[0])), a2.T]   #Size(5000 * 26)
+    z3 = np.dot(theta2, a2.T)
+    a3 = lgr.sigmoid(z3)                    
+    a3 = np.argmax(a3.T, 1)                 #Size(5000 * 1)
+    return a3
 
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
     X = data['X']
     y = data['y']
-    rand_indices = np.random.choice(X.shape[0], 100, replace=False)
-    utils.displayData(X[rand_indices, :])
-    Theta = oneVsAll(X, y, 10, 0.75)
-    yP = predictOneVsAll(Theta, X)
+
+    #PARTE 1
+    #Theta = oneVsAll(X, y, 10, 0.75)
+    #yP = predictOneVsAll(Theta, X)
+
+    #PARTE 2
+    weights = sc.loadmat('data/ex3weights.mat')
+    theta1, theta2 = weights['Theta1'], weights['Theta2']
+    yP = predict(theta1, theta2, X)
+
     count = 0
     for i in range(len(y)):
         if(y[i] == yP[i]) :
             count+=1
 
     print(count/len(y)*100)
+
+    rand_indices = np.random.choice(X.shape[0], 100, replace=False)
+    utils.displayData(X[rand_indices, :])
 
 main()
