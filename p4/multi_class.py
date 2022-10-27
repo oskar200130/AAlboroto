@@ -123,13 +123,13 @@ def main():
     y = data['y']
 
     #PARTE 1
-    #Theta = oneVsAll(X, y, 10, 0.75)
-    #yP = predictOneVsAll(Theta, X)
+    Theta = oneVsAll(X, y, 10, 0.20)
+    yP = predictOneVsAll(Theta, X)
 
     #PARTE 2
-    weights = sc.loadmat('data/ex3weights.mat')
-    theta1, theta2 = weights['Theta1'], weights['Theta2']
-    yP = predict(theta1, theta2, X)
+    # weights = sc.loadmat('data/ex3weights.mat')
+    # theta1, theta2 = weights['Theta1'], weights['Theta2']
+    # yP = predict(theta1, theta2, X)
 
     count = 0
     for i in range(len(y)):
