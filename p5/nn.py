@@ -11,7 +11,7 @@ def feed_forward(theta1, theta2, X):
     z3 = np.dot(theta2, a2.T)
     a3 = lgr.sigmoid(z3)                    
     a3 = a3.T                 #Size(5000 * 1)
-    return a3
+    return a3, a2, a1
 
 def cost(theta1, theta2, X, y, lambda_):
     """
@@ -43,12 +43,13 @@ def cost(theta1, theta2, X, y, lambda_):
         The computed value for the cost function. 
 
     """
-    p = feed_forward(theta1, theta2, X)
+    p, p2, p1 = feed_forward(theta1, theta2, X)
     m = len(X)
 
     cost = np.sum(y * np.log(p) + (1-y) * np.log(1 - p))
+    rCost = np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2)
 
-    return -cost/m
+    return -cost/m + ((lambda_/(2*m))*rCost)
 
 
 
@@ -92,21 +93,34 @@ def backprop(theta1, theta2, X, y, lambda_):
         It has shape (output layer size x 2nd hidden layer size + 1)
 
     """
+    grad1 = np.zeros([len(theta1), len(theta1[0])])
+    grad2 = np.zeros([len(theta2), len(theta2[0])])
+    for i in range(len(X)):
+        a3, a2, a1 = feed_forward(theta1, theta2, [X[i]])
 
+        sigma3 = a3 - y[i]
+        gPrima = a2 * (1 - a2)
+        sigma2 = np.dot(sigma3, theta2) * gPrima
 
-    return (J, grad1, grad2)
+        sigma = sigma2[:, 1:]
+
+        grad1 += np.dot(sigma.T, a1)
+        grad2 += np.dot(sigma3.T, a2)
+
+    return (cost(theta1, theta2, X, y, 0), grad1, grad2)
 
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
     y = data['y']
     y_hot = np.zeros([len(y), 10])
     for i in range(len(y)):
-        yMat[i][y[i]] = 1
+        y_hot[i][y[i]] = 1
     X = data['X']
 
-    weights = sc.loadmat('data/ex3weights.mat')
-    theta1, theta2 = weights['Theta1'], weights['Theta2']
-    c = cost(theta1, theta2, X, y_hot, 0.2)
-    print(c)
+    # weights = sc.loadmat('data/ex3weights.mat')
+    # theta1, theta2 = weights['Theta1'], weights['Theta2']
+    # c = cost(theta1, theta2, X, y_hot, 1)
+    # print(c)
+    utils.checkNNGradients(backprop)
 
 main()   
