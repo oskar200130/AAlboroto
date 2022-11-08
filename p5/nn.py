@@ -95,7 +95,9 @@ def backprop(theta1, theta2, X, y, lambda_):
     """
     grad1 = np.zeros([len(theta1), len(theta1[0])])
     grad2 = np.zeros([len(theta2), len(theta2[0])])
-    for i in range(len(X)):
+
+    m = len(X)
+    for i in range(m):
         a3, a2, a1 = feed_forward(theta1, theta2, [X[i]])
 
         sigma3 = a3 - y[i]
@@ -106,6 +108,12 @@ def backprop(theta1, theta2, X, y, lambda_):
 
         grad1 += np.dot(sigma.T, a1)
         grad2 += np.dot(sigma3.T, a2)
+
+    grad1 /=m
+    grad2 /=m
+
+    grad1[:,1:] += lambda_*theta1[:,1:]
+    grad2[:,1:] += lambda_*theta2[:,1:]
 
     return (cost(theta1, theta2, X, y, 0), grad1, grad2)
 
