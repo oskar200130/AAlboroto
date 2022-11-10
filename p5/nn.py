@@ -47,9 +47,9 @@ def cost(theta1, theta2, X, y, lambda_):
     m = len(X)
 
     cost = np.sum(y * np.log(p) + (1-y) * np.log(1 - p))
-    rCost = np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2)
+    rCost = np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2)  #aqui
 
-    return -cost/m + ((lambda_/(2*m))*rCost)
+    return -cost/m + ((lambda_/(2*m))*rCost) #aqui
 
 
 
@@ -109,13 +109,10 @@ def backprop(theta1, theta2, X, y, lambda_):
         grad1 += np.dot(sigma.T, a1)
         grad2 += np.dot(sigma3.T, a2)
 
-    grad1 /=m
-    grad2 /=m
+    grad1[:,1:] += lambda_*theta1[:,1:]  #o aqui
+    grad2[:,1:] += lambda_*theta2[:,1:]  #o aqui
 
-    grad1[:,1:] += lambda_*theta1[:,1:]
-    grad2[:,1:] += lambda_*theta2[:,1:]
-
-    return (cost(theta1, theta2, X, y, 0), grad1, grad2)
+    return (cost(theta1, theta2, X, y, lambda_), grad1/m, grad2/m)
 
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
@@ -129,6 +126,6 @@ def main():
     # theta1, theta2 = weights['Theta1'], weights['Theta2']
     # c = cost(theta1, theta2, X, y_hot, 1)
     # print(c)
-    utils.checkNNGradients(backprop)
+    utils.checkNNGradients(backprop, 1)
 
 main()   
