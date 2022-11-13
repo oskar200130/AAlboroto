@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.io as sc
+import scipy.optimize as scop
 import utils
 import logistic_reg as lgr
 
@@ -47,9 +48,9 @@ def cost(theta1, theta2, X, y, lambda_):
     m = len(X)
 
     cost = np.sum(y * np.log(p) + (1-y) * np.log(1 - p))
-    rCost = np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2)  #aqui
+    rCost = np.sum(theta1[:, 1:]**2) + np.sum(theta2[:, 1:]**2)
 
-    return -cost/m + ((lambda_/(2*m))*rCost) #aqui
+    return -cost/m + ((lambda_/(2*m))*rCost)
 
 
 
@@ -122,6 +123,9 @@ def gradiant_descend(theta1, theta2, X, y, iter, alpha = 0, lambda_ = 0):
 
     return theta1, theta2
 
+def backprop_aux(thetas, X, y, lambda_):
+    return backprop(thetas[0], thetas[1], X, y, lambda_)
+
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
     y = data['y']
@@ -139,7 +143,9 @@ def main():
     theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12 - 0.12)
     theta2 = np.random.random((10, 26))
 
-    theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+    # theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+    arr = [(theta1, theta2)]
+    scop.minimize(backprop_aux, arr, args=(X, y_hot, 1), method="TNC", jac=True, options={'maxiter': 100})
     yP = np.argmax(feed_forward(theta1, theta2, X)[0], 1) 
 
     cont =0
