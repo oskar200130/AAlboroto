@@ -109,10 +109,18 @@ def backprop(theta1, theta2, X, y, lambda_):
         grad1 += np.dot(sigma.T, a1)
         grad2 += np.dot(sigma3.T, a2)
 
-    grad1[:,1:] += lambda_*theta1[:,1:]  #o aqui
-    grad2[:,1:] += lambda_*theta2[:,1:]  #o aqui
+    grad1[:,1:] += lambda_*theta1[:,1:]
+    grad2[:,1:] += lambda_*theta2[:,1:]
 
     return (cost(theta1, theta2, X, y, lambda_), grad1/m, grad2/m)
+
+def gradiant_descend(theta1, theta2, X, y, iter, alpha = 0, lambda_ = 0):
+    for i in range (iter):
+        c, th1, th2 = backprop(theta1, theta2, X, y, lambda_)
+        theta1 -= alpha*th1
+        theta2 -= alpha*th2
+
+    return theta1, theta2
 
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
@@ -126,6 +134,18 @@ def main():
     # theta1, theta2 = weights['Theta1'], weights['Theta2']
     # c = cost(theta1, theta2, X, y_hot, 1)
     # print(c)
-    utils.checkNNGradients(backprop, 1)
+    #utils.checkNNGradients(backprop, 1)
+
+    theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12 - 0.12)
+    theta2 = np.random.random((10, 26))
+
+    theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+    yP = np.argmax(feed_forward(theta1, theta2, X)[0], 1) 
+
+    cont =0
+    for i in range(len(y)):
+        if(yP[i] == y[i]):
+             cont += 1
+    print(cont / len(y) * 100)
 
 main()   
