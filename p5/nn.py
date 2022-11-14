@@ -120,6 +120,7 @@ def gradiant_descend(theta1, theta2, X, y, iter, alpha = 0, lambda_ = 0):
         c, th1, th2 = backprop(theta1, theta2, X, y, lambda_)
         theta1 -= alpha*th1
         theta2 -= alpha*th2
+        print(i)
 
     return theta1, theta2
 
@@ -140,12 +141,12 @@ def main():
     # print(c)
     #utils.checkNNGradients(backprop, 1)
 
-    theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12 - 0.12)
-    theta2 = np.random.random((10, 26))
+    theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12)  - 0.12
+    theta2 = np.random.random((10, 26))  * (2*0.12)  - 0.12
 
-    # theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
-    arr = [(theta1, theta2)]
-    scop.minimize(backprop_aux, arr, args=(X, y_hot, 1), method="TNC", jac=True, options={'maxiter': 100})
+    theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+    #arr = [(theta1, theta2)]
+    #scop.minimize(backprop_aux, arr, args=(X, y_hot, 1), method="TNC", jac=True, options={'maxiter': 100})
     yP = np.argmax(feed_forward(theta1, theta2, X)[0], 1) 
 
     cont =0
