@@ -126,8 +126,9 @@ def gradiant_descend(theta1, theta2, X, y, iter, alpha = 0, lambda_ = 0):
 
 def backprop_aux(thetas, X, y, lambda_):
     th1 = np.reshape(thetas[:25 * (len(X[0]) + 1)], (25, len(X[0])+1))
-    th2 = np.reshape(thetas[25 * (len(y) + 1):], (len(y), 26))
-    return backprop(th1, th2, X, y, lambda_)
+    th2 = np.reshape(thetas[25 * (len(X[0]) + 1):], (len(y[0]), 26))
+    c, g1, g2 = backprop(th1, th2, X, y, lambda_)
+    return c, np.concatenate([np.ravel(g1), np.ravel(g2)])
 
 def main():
     data = sc.loadmat('data/ex3data1.mat', squeeze_me=True)
@@ -150,8 +151,8 @@ def main():
     arr = np.concatenate([theta1.ravel(), theta2.ravel()])
     result = scop.minimize(backprop_aux, arr, args=(X, y_hot, 1), method="TNC", jac=True, options={'maxiter': 100})
 
-    theta1 = np.reshape(result[:25 * len(X) + 1], (25, len(X)+1))
-    theta2 = np.reshape(result[25 * (len(X) + 1):], (len(y), 26))
+    theta1 = np.reshape(result.x[:25 * (len(X[0]) + 1)], (25, len(X[0])+1))
+    theta2 = np.reshape(result.x[25 * (len(X[0]) + 1):], (len(y_hot[0]), 26))
 
     yP = np.argmax(feed_forward(theta1, theta2, X)[0], 1) 
 
