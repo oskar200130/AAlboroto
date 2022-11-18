@@ -34,10 +34,11 @@ def main():
     x, y, x_i, y_i = gen_data(64)
     draw_data(x, y, x_i, y_i)
     x = x[:, None]
-    x_train, x_test, y_train, y_test = sms.train_test_split(x, y, train_size = 0.33, random_state = 1)
+    x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.33, random_state = 1)
     x_testO = x_test
     x_trainO = x_train
-    pol = sp.PolynomialFeatures(include_bias=False, degree= 15)
+
+    pol = sp.PolynomialFeatures(degree= 15, include_bias=False)
     x_train = pol.fit_transform(x_train)
 
     scal = sp.StandardScaler()
@@ -53,8 +54,8 @@ def main():
     print(compute_cost(y_test, y_testpre))
     y_trainpre = lin.predict(x_train)
     print(compute_cost(y_train, y_trainpre))
-    
     XData_ = np.sort(x_testO,axis=None)
+    
     plt.plot(XData_, y_testpre, 'g--')
     plt.show()
 
