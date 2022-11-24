@@ -44,6 +44,18 @@ def train(degr, x_train, y_train):
 
     return pol, scal, lin, x_train
 
+def trainReg(degr, x_train, y_train, lambda_):
+    pol = sp.PolynomialFeatures(degree= degr, include_bias=False)
+    x_train = pol.fit_transform(x_train)
+
+    scal = sp.StandardScaler()
+    x_train = scal.fit_transform(x_train)
+
+    lin = slm.Ridge(alpha=lambda_)
+    lin.fit(x_train, y_train)
+
+    return pol, scal, lin, x_train
+
 def test(x_test, y_test, x_train, y_train, pol, scal, lin):
     x_test = pol.transform(x_test)
     x_test = scal.transform(x_test)
@@ -64,17 +76,15 @@ def sobreAjuste(x, y, x_i, y_i):
 
     pol, scal, lin, x_train = train(15, x_train, y_train)
 
-    tc, trc, y_testpre = test(x_test, y_test, x_train, y_train, pol, scal, lin)
-    
-    y_sorted = [y for _,y in sorted(zip(x_testO, y_testpre))]
-    x_sorted = np.sort(x_testO, axis=None)
+    x_draw = np.linspace(0, 49, 1000)
+    x_draw = x_draw[:, None]
+    x_d = pol.transform(x_draw)
+    x_d = scal.transform(x_d)
+    y_testpre1 = lin.predict(x_d)
 
-    draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
+    return x_draw, y_testpre1
 
-def main(): 
-    x, y, x_i, y_i = gen_data(64)
-    #sobreAjuste(x, y, x_i, y_i)
-
+def eleccGrado(x, y, x_i, y_i):
     x = x[:, None]
     x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
@@ -92,10 +102,49 @@ def main():
             print(i+1)
     
     pol, scal, lin, x_train = train(degree, x_train, y_train)
-    tc, trc, y_testpre = test(x_test, y_test, x_train, y_train, pol, scal, lin)
 
-    y_sorted = [y for _,y in sorted(zip(x_testO, y_testpre))]
-    x_sorted = np.sort(x_testO, axis=None)
+
+    x_draw = np.linspace(0, 49, 1000)
+    x_draw = x_draw[:, None]
+    x_d = pol.transform(x_draw)
+    x_d = scal.transform(x_d)
+    y_testpre1 = lin.predict(x_d)
+
+    return x_draw, y_testpre1
+
+def main(): 
+    x, y, x_i, y_i = gen_data(64)
+    #x_sorted, y_sorted = sobreAjuste(x, y, x_i, y_i)
+    x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
+    
+    # x = x[:, None]
+    # x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
+    # x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
+    # x_testO = x_test
+
+    # minCos = 0
+    # degree = 0
+
+    # for i in range(12):
+    #     if(i<9):
+    #         lambda_ = 1*(10**(-6+i))
+    #     else:
+    #         lambda_ = 300*(i-8)
+    #     pol, scal, lin, x_train_t = trainReg(15, x_train, y_train, lambda_)
+    #     test_cst, train_cst, y_tspr = test(x_val, y_val, x_train_t, y_train, pol, scal, lin)
+    #     if(minCos == 0 or test_cst < minCos):
+    #         minCos = test_cst
+    #         alpha = lambda_
+    #         print(alpha)
+    
+    # pol, scal, lin, x_train = trainReg(15, x_train, y_train, alpha)
+    # tc, trc, y_testpre = test(x_test, y_test, x_train, y_train, pol, scal, lin)
+
+    # x_draw = np.linspace(0, 49, 1000)
+    # x_draw = x_draw[:, None]
+    # x_d = pol.transform(x_draw)
+    # x_d = scal.transform(x_d)
+    # y_testpre1 = lin.predict(x_d)
 
     draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
     
