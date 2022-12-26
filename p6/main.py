@@ -51,7 +51,7 @@ def trainReg(degr, x_train, y_train, lambda_):
     scal = sp.StandardScaler()
     x_train = scal.fit_transform(x_train)
 
-    lin = slm.Ridge(alpha=lambda_)
+    lin = slm.Ridge(lambda_)
     lin.fit(x_train, y_train)
 
     return pol, scal, lin, x_train
@@ -81,6 +81,9 @@ def sobreAjuste(x, y, x_i, y_i):
     x_d = pol.transform(x_draw)
     x_d = scal.transform(x_d)
     y_testpre1 = lin.predict(x_d)
+    testc, trc, ytestp = test(x_test, y_test, x_train, y_train, pol, scal, lin)
+    print("Test cost: " + str(testc))
+    print("Train cost: " + str(trc))
 
     return x_draw, y_testpre1
 
@@ -101,8 +104,7 @@ def eleccGrado(x, y, x_i, y_i):
             degree = i+1
             print(i+1)
     
-    pol, scal, lin, x_train = train(degree, x_train, y_train)
-
+    pol, scal, lin, x_train = train(degree, x_test, y_test)
 
     x_draw = np.linspace(0, 49, 1000)
     x_draw = x_draw[:, None]
@@ -112,39 +114,71 @@ def eleccGrado(x, y, x_i, y_i):
 
     return x_draw, y_testpre1
 
+def searchLambda(degree, x_train, y_train, x_val, y_val):
+    lambda_ = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1, 10, 100, 300, 600, 900]
+    alpha = 0
+    minCos = -1
+    for i in range(11):
+        pol, scal, lin, x_train_t = trainReg(degree, x_train, y_train, lambda_[i])
+        test_cst, train_cst, y_tspr = test(x_val, y_val, x_train_t, y_train, pol, scal, lin)
+        if(minCos == -1 or test_cst < minCos):
+            minCos = test_cst
+            alpha = lambda_[i]
+            print(alpha)
+    return alpha, minCos
+
+def eleccLambda(x, y, x_i, y_i):
+    x = x[:, None]
+    x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
+    x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
+    x_testO = x_test
+
+    alpha, minCos = searchLambda(15, x_train, y_train, x_val, y_val)
+    
+    pol, scal, lin, x_train = trainReg(15, x_test, y_test, alpha)
+
+    x_draw = np.linspace(0, 49, 1000)
+    x_draw = x_draw[:, None]
+    x_d = pol.transform(x_draw)
+    x_d = scal.transform(x_d)
+    y_testpre1 = lin.predict(x_d)
+
+    return x_draw, y_testpre1
+
+def eleccHiperParams(x, y, x_i, y_i):
+    x = x[:, None]
+    x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
+    x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
+    x_testO = x_test
+
+    minCos = -1
+    defAlpha = 0
+    defDegree = 0
+    for i in range(14):     #For para los grados
+        alpha, cost = searchLambda(i + 1, x_train, y_train, x_val, y_val)
+        if(minCos == -1 or minCos > cost):
+            minCos = cost
+            defAlpha = alpha
+            defDegree = i + 1
+
+    pol, scal, lin, x_train = trainReg(defDegree, x_train, y_train, defAlpha)
+    test_cst, train_cst, y_tspr = test(x_test, y_test, x_train, y_train, pol, scal, lin)
+    print("Coste test: " + str(test_cst))
+
+    x_draw = np.linspace(0, 49, 1000)
+    x_draw = x_draw[:, None]
+    x_d = pol.transform(x_draw)
+    x_d = scal.transform(x_d)
+    y_testpre1 = lin.predict(x_d)
+
+    return x_draw, y_testpre1 
+
 def main(): 
-    x, y, x_i, y_i = gen_data(64)
+    x, y, x_i, y_i = gen_data(750)
     #x_sorted, y_sorted = sobreAjuste(x, y, x_i, y_i)
-    x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
-    
-    # x = x[:, None]
-    # x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
-    # x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
-    # x_testO = x_test
-
-    # minCos = 0
-    # degree = 0
-
-    # for i in range(12):
-    #     if(i<9):
-    #         lambda_ = 1*(10**(-6+i))
-    #     else:
-    #         lambda_ = 300*(i-8)
-    #     pol, scal, lin, x_train_t = trainReg(15, x_train, y_train, lambda_)
-    #     test_cst, train_cst, y_tspr = test(x_val, y_val, x_train_t, y_train, pol, scal, lin)
-    #     if(minCos == 0 or test_cst < minCos):
-    #         minCos = test_cst
-    #         alpha = lambda_
-    #         print(alpha)
-    
-    # pol, scal, lin, x_train = trainReg(15, x_train, y_train, alpha)
-    # tc, trc, y_testpre = test(x_test, y_test, x_train, y_train, pol, scal, lin)
-
-    # x_draw = np.linspace(0, 49, 1000)
-    # x_draw = x_draw[:, None]
-    # x_d = pol.transform(x_draw)
-    # x_d = scal.transform(x_d)
-    # y_testpre1 = lin.predict(x_d)
+    #x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
+    #x_sorted, y_sorted = eleccLambda(x, y, x_i, y_i)
+    x_sorted, y_sorted = eleccHiperParams(x, y, x_i, y_i)
 
     draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
     
