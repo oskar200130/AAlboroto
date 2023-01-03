@@ -14,6 +14,14 @@ def draw_data(x, y, x_i, y_i, x_tr, y_tr):
     plt.legend()
     plt.show()
 
+def draw_data_2(x, y, x_i, y_i):
+    plt.figure()
+    plt.plot(x_i, y_i, c = 'orange', label = "validation", linewidth=2, markersize=12)
+    plt.plot(x, y, c='blue', label='train', linewidth=2, markersize=12)
+    plt.ylim(0, 175000)
+    plt.legend()
+    plt.show()
+
 def gen_data(m, seed=1, scale=0.7):
     """ generate a data set based on a x^2 with added noise """
     c = 0
@@ -173,13 +181,32 @@ def eleccHiperParams(x, y, x_i, y_i):
 
     return x_draw, y_testpre1 
 
+def learningCurve():
+    J_costTrain = []
+    J_costVal = []
+    params = []
+
+    for i in range(20): 
+        params += [50 *(i+1)]
+        x, y, x_i, y_i = gen_data(params[i])
+        x = x[:, None]
+        x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
+        x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
+        pol, scal, lin, x_train_t = train(16, x_train, y_train)
+        test_cst, train_cst, y_tspr = test(x_val, y_val, x_train_t, y_train, pol, scal, lin)
+        J_costTrain += [train_cst]
+        J_costVal += [test_cst]
+
+
+    draw_data_2(params, J_costTrain, params, J_costVal)
+
 def main(): 
-    x, y, x_i, y_i = gen_data(750)
+    #x, y, x_i, y_i = gen_data(750)
     #x_sorted, y_sorted = sobreAjuste(x, y, x_i, y_i)
     #x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
     #x_sorted, y_sorted = eleccLambda(x, y, x_i, y_i)
-    x_sorted, y_sorted = eleccHiperParams(x, y, x_i, y_i)
+    #x_sorted, y_sorted = eleccHiperParams(x, y, x_i, y_i)
+    learningCurve()
 
-    draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
     
 main()
