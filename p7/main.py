@@ -7,7 +7,6 @@ import sklearn.model_selection as sms
 import logistic_reg as lr
 import nn
 
-
 def readMail(path, dicc):
     vec = np.zeros(len(dicc))
     email_contents = codecs.open(path, 'r', encoding='utf-8', errors='ignore').read()
@@ -29,7 +28,7 @@ def readFolder(dicc, folderPath, isSpam):
 
     return X, y
 
-def withSVM(X, y):
+def withSVM(X, y):      #98.6
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
 
@@ -42,7 +41,7 @@ def withSVM(X, y):
             cont += 1
     print(cont/len(y_test) * 100)
 
-def withLogisticRegresion(X, y):
+def withLogisticRegresion(X, y):    #96.06
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
     lambd = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 300, 600, 900]
@@ -54,7 +53,7 @@ def withLogisticRegresion(X, y):
     
     for l in lambd: 
         
-        aciertoAux, wAux, bAux = lr.calcBest(x_train, y_train, x_val, y_val, l, 200)
+        aciertoAux, wAux, bAux = lr.calcBest(x_train, y_train, x_val, y_val, l, 1000)
 
         if (bestLamb == -1 or acierto < aciertoAux):
             bestLamb = l
@@ -64,7 +63,7 @@ def withLogisticRegresion(X, y):
 
     print(lr.test(x_test, y_test, bestW, bestB))
     
-def withNN(X, y):
+def withNN(X, y):       #83.96
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
 
@@ -81,7 +80,7 @@ def withNN(X, y):
     acierto = -1
 
     for l in lambd:
-        aciertoAux,theta1Aux, theta2Aux = nn.calcBest(x_train, y_hot, x_val, y_val, arr, l, 200)
+        aciertoAux, theta1Aux, theta2Aux = nn.calcBest(x_train, y_hot, x_val, y_val, arr, l, 100)
         if (bestLamb == -1 or aciertoAux > acierto):
             bestLamb = l
             acierto = aciertoAux 
@@ -89,7 +88,6 @@ def withNN(X, y):
             theta2 = theta2Aux
 
     print(nn.test(x_test, y_test, theta1, theta2))
-
 
 def main():
     dicc = utils.getVocabDict()
@@ -101,7 +99,5 @@ def main():
     y = np.concatenate((ySpam, yEasy, yHard), axis=0)
 
     withLogisticRegresion(X, y)
-
-
 
 main()
