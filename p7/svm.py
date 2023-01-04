@@ -89,5 +89,6 @@ def calcSVM(X, y, Xval, yval):
                 acierto = aux
                 bestSigma = sig
                 bestC = c
-
-    return kernell_gausiano(X, y, bestC, bestSigma)
+    svm = sklearn.svm.SVC(kernel='rbf', C = bestC, gamma=1 / (2 * bestSigma**2))
+    svm.fit(X, y)
+    return svm

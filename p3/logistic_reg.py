@@ -1,8 +1,6 @@
 from ctypes import sizeof
 import numpy as np
 import copy
-import math
-import public_tests as tests
 import utils 
 
 def read_data():
