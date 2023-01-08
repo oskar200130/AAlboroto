@@ -147,7 +147,17 @@ def main():
     theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12)  - 0.12
     theta2 = np.random.random((10, 26))  * (2*0.12)  - 0.12
 
-    #theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+    theta1, theta2 = gradiant_descend(theta1, theta2, X, y_hot, 1000, 1, 1)
+
+    cont =0
+    for i in range(len(y)):
+        if(yP[i] == y[i]):
+             cont += 1
+    print("Gradiant descent cost: ", cont / len(y) * 100, "%")
+
+    theta1 = np.random.random((25, len(X[0]) + 1)) * (2*0.12)  - 0.12
+    theta2 = np.random.random((10, 26))  * (2*0.12)  - 0.12
+
     arr = np.concatenate([theta1.ravel(), theta2.ravel()])
     result = scop.minimize(backprop_aux, arr, args=(X, y_hot, 1), method="TNC", jac=True, options={'maxiter': 100})
 
@@ -160,6 +170,6 @@ def main():
     for i in range(len(y)):
         if(yP[i] == y[i]):
              cont += 1
-    print(cont / len(y) * 100)
+    print("Scipy optimize cost: ", cont / len(y) * 100, "%")
 
 main()   

@@ -107,7 +107,7 @@ def predict(theta1, theta2, X):
         Predictions vector containing the predicted label for each example.
         It has a length equal to the number of examples.
     """
-    #X_b = deepcopy(X)
+    #X_b = deepcopy(X)                      Size para este caso:
     a1 = np.c_[np.ones(len(X)), X]          #Size(5000 * 401)
     z2 = np.dot(theta1, a1.T)           
     a2 = lgr.sigmoid(z2)
@@ -127,16 +127,23 @@ def main():
     yP = predictOneVsAll(Theta, X)
 
     #PARTE 2
-    # weights = sc.loadmat('data/ex3weights.mat')
-    # theta1, theta2 = weights['Theta1'], weights['Theta2']
-    # yP = predict(theta1, theta2, X)
+    weights = sc.loadmat('data/ex3weights.mat')
+    theta1, theta2 = weights['Theta1'], weights['Theta2']
+    yP2 = predict(theta1, theta2, X)
 
     count = 0
     for i in range(len(y)):
         if(y[i] == yP[i]) :
             count+=1
 
-    print(count/len(y)*100)
+    print("Part A accuracy: ", count/len(y)*100, "%")
+
+    count = 0
+    for i in range(len(y)):
+        if(y[i] == yP2[i]) :
+            count+=1
+
+    print("Part B accuracy: ", count/len(y)*100, "%")
 
     rand_indices = np.random.choice(X.shape[0], 100, replace=False)
     utils.displayData(X[rand_indices, :])

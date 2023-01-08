@@ -5,7 +5,7 @@ import sklearn.model_selection as sms
 import sklearn.preprocessing as sp
 import sklearn.linear_model as slm
 
-def draw_data(x, y, x_i, y_i, x_tr, y_tr):
+def draw_data(x, y, x_i, y_i, x_tr, y_tr):      #Dibujado para apartados 1-4
     plt.figure()
     plt.plot(x, y, 'bo', label = "train")
     plt.plot(x_i, y_i, c = 'red', label = "y_ideal", linestyle='dashed')
@@ -14,7 +14,7 @@ def draw_data(x, y, x_i, y_i, x_tr, y_tr):
     plt.legend()
     plt.show()
 
-def draw_data_2(x, y, x_i, y_i):
+def draw_data_2(x, y, x_i, y_i):                #Dibujado apartado 5
     plt.figure()
     plt.plot(x_i, y_i, c = 'orange', label = "validation", linewidth=2, markersize=12)
     plt.plot(x, y, c='blue', label='train', linewidth=2, markersize=12)
@@ -70,17 +70,14 @@ def test(x_test, y_test, x_train, y_train, pol, scal, lin):
 
     y_testpre = lin.predict(x_test)
     test_cst = compute_cost(y_test, y_testpre)
-    print(test_cst)
     y_trainpre = lin.predict(x_train)
     train_cst = compute_cost(y_train, y_trainpre)
-    #print(train_cst)
 
     return test_cst, train_cst, y_testpre
 
-def sobreAjuste(x, y, x_i, y_i):
+def sobreAjuste(x, y):
     x = x[:, None]
     x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.33, random_state = 1)
-    x_testO = x_test
 
     pol, scal, lin, x_train = train(15, x_train, y_train)
 
@@ -95,11 +92,10 @@ def sobreAjuste(x, y, x_i, y_i):
 
     return x_draw, y_testpre1
 
-def eleccGrado(x, y, x_i, y_i):
+def eleccGrado(x, y):
     x = x[:, None]
     x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
-    x_testO = x_test
 
     minCos = 0
     degree = 0
@@ -110,7 +106,6 @@ def eleccGrado(x, y, x_i, y_i):
         if(minCos == 0 or test_cst < minCos):
             minCos = test_cst
             degree = i+1
-            print(i+1)
     
     pol, scal, lin, x_train = train(degree, x_train, y_train)
 
@@ -119,6 +114,9 @@ def eleccGrado(x, y, x_i, y_i):
     x_d = pol.transform(x_draw)
     x_d = scal.transform(x_d)
     y_testpre1 = lin.predict(x_d)
+
+    print("Mejor grado: ", degree)
+    print("Coste test: ", minCos)
 
     return x_draw, y_testpre1
 
@@ -132,14 +130,12 @@ def searchLambda(degree, x_train, y_train, x_val, y_val):
         if(minCos == -1 or test_cst < minCos):
             minCos = test_cst
             alpha = lambda_[i]
-            print(alpha)
     return alpha, minCos
 
-def eleccLambda(x, y, x_i, y_i):
+def eleccLambda(x, y):
     x = x[:, None]
     x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
-    x_testO = x_test
 
     alpha, minCos = searchLambda(15, x_train, y_train, x_val, y_val)
     
@@ -151,13 +147,14 @@ def eleccLambda(x, y, x_i, y_i):
     x_d = scal.transform(x_d)
     y_testpre1 = lin.predict(x_d)
 
+    print("Mejor lambda: ", alpha)
+
     return x_draw, y_testpre1
 
-def eleccHiperParams(x, y, x_i, y_i):
+def eleccHiperParams(x, y):
     x = x[:, None]
     x_train, x_test, y_train, y_test = sms.train_test_split(x, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
-    x_testO = x_test
 
     minCos = -1
     defAlpha = 0
@@ -171,6 +168,8 @@ def eleccHiperParams(x, y, x_i, y_i):
 
     pol, scal, lin, x_train = trainReg(defDegree, x_train, y_train, defAlpha)
     test_cst, train_cst, y_tspr = test(x_test, y_test, x_train, y_train, pol, scal, lin)
+
+    print("Mejor lambda: ", defAlpha, "Mejor grado: ", defDegree)
     print("Coste test: " + str(test_cst))
 
     x_draw = np.linspace(0, 49, 1000)
@@ -202,11 +201,22 @@ def learningCurve():
 
 def main(): 
     x, y, x_i, y_i = gen_data(64)
-    #x_sorted, y_sorted = sobreAjuste(x, y, x_i, y_i)
-    x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
-    #x_sorted, y_sorted = eleccLambda(x, y, x_i, y_i)
-    #x_sorted, y_sorted = eleccHiperParams(x, y, x_i, y_i)
-    #learningCurve()
+    #Apartado 1: Sobreajuste ejemplos entrenamiento
+    x_sorted, y_sorted = sobreAjuste(x, y)
+
+    #Apartado 2: Elección grado polinomio
+    x_sorted, y_sorted = eleccGrado(x, y)
+
+    #Apartado 3: Elección lambda
+    x_sorted, y_sorted = eleccLambda(x, y)
+
+    #Apartado 4: Eleccion hiper-parámetros
+    x_sorted, y_sorted = eleccHiperParams(x, y)
+
+    #Dibujado de los resultados
     draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
+
+    #Apartado 5: Curvas aprendizaje
+    learningCurve()
     
 main()
