@@ -1,11 +1,13 @@
 import codecs
 import glob
+from matplotlib import pyplot as plt
 import numpy as np
 import utils
 import svm
 import sklearn.model_selection as sms
 import logistic_reg as lr
 import nn
+import time
 
 def readMail(path, dicc):
     vec = np.zeros(len(dicc))
@@ -39,7 +41,7 @@ def withSVM(X, y):      #98.6
     for i in range (len(y_test)):
         if (y_test[i] == yp[i]):
             cont += 1
-    print(cont/len(y_test) * 100)
+    return cont/len(y_test) * 100
 
 def withLogisticRegresion(X, y):    #96.06
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
@@ -61,7 +63,7 @@ def withLogisticRegresion(X, y):    #96.06
             bestW = wAux
             bestB = bAux
 
-    print(lr.test(x_test, y_test, bestW, bestB))
+    return lr.test(x_test, y_test, bestW, bestB)
     
 def withNN(X, y):       #97.88
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
@@ -87,7 +89,7 @@ def withNN(X, y):       #97.88
             theta1 = theta1Aux
             theta2 = theta2Aux
 
-    print(nn.test(x_test, y_test, theta1, theta2))
+    return nn.test(x_test, y_test, theta1, theta2)
 
 def main():
     dicc = utils.getVocabDict()
@@ -98,6 +100,39 @@ def main():
     X = np.concatenate((XSpam, XEasy, XHard), axis=0)
     y = np.concatenate((ySpam, yEasy, yHard), axis=0)
 
-    withNN(X, y)
+    inicio = time.time()
+    aciertoNN = withNN(X, y)
+    timeNN = time.time() - inicio
+    aciertoLogReg = withLogisticRegresion(X, y)
+    timeLogReg = time.time() - inicio
+    aciertoSVM = withSVM(X,y)
+    timeSVM = time.time() - inicio
+
+    plotOffset = 80
+
+    Xplot = ['Logistic Regresion','Neural Networks','SVM']
+    yplot = [aciertoLogReg - plotOffset,aciertoNN - plotOffset, aciertoSVM - plotOffset]
+    yplotTime = [timeNN ,timeLogReg , timeSVM ]
+    
+    X_axis = np.arange(len(Xplot))
+    
+    plt.bar(X_axis, yplot, 0.4, label = 'Succes percentage', bottom=plotOffset)
+    plt.xticks(X_axis, Xplot)
+    plt.xlabel("Training system")
+    plt.ylabel("Succes percentage")
+    plt.title("Succes percentage for each training system")
+    plt.legend()
+    plt.show()
+    plt.close("all")
+
+    plt.bar(X_axis, yplotTime, 0.4, label = 'Time training')
+    plt.xticks(X_axis, Xplot)
+    plt.xlabel("Training system")
+    plt.ylabel("Time training")
+    plt.title("Time spent training with each training system")
+    plt.legend()
+    plt.show()
+
+    
 
 main()
