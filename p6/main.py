@@ -112,7 +112,7 @@ def eleccGrado(x, y, x_i, y_i):
             degree = i+1
             print(i+1)
     
-    pol, scal, lin, x_train = train(degree, x_test, y_test)
+    pol, scal, lin, x_train = train(degree, x_train, y_train)
 
     x_draw = np.linspace(0, 49, 1000)
     x_draw = x_draw[:, None]
@@ -143,7 +143,7 @@ def eleccLambda(x, y, x_i, y_i):
 
     alpha, minCos = searchLambda(15, x_train, y_train, x_val, y_val)
     
-    pol, scal, lin, x_train = trainReg(15, x_test, y_test, alpha)
+    pol, scal, lin, x_train = trainReg(15, x_train, y_train, alpha)
 
     x_draw = np.linspace(0, 49, 1000)
     x_draw = x_draw[:, None]
@@ -201,12 +201,12 @@ def learningCurve():
     draw_data_2(params, J_costTrain, params, J_costVal)
 
 def main(): 
-    #x, y, x_i, y_i = gen_data(750)
+    x, y, x_i, y_i = gen_data(64)
     #x_sorted, y_sorted = sobreAjuste(x, y, x_i, y_i)
-    #x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
+    x_sorted, y_sorted = eleccGrado(x, y, x_i, y_i)
     #x_sorted, y_sorted = eleccLambda(x, y, x_i, y_i)
     #x_sorted, y_sorted = eleccHiperParams(x, y, x_i, y_i)
-    learningCurve()
-
+    #learningCurve()
+    draw_data(x, y, x_i, y_i, x_sorted, y_sorted)
     
 main()

@@ -63,13 +63,13 @@ def withLogisticRegresion(X, y):    #96.06
 
     print(lr.test(x_test, y_test, bestW, bestB))
     
-def withNN(X, y):       #83.96
+def withNN(X, y):       #97.88
     x_train, x_test, y_train, y_test = sms.train_test_split(X, y, test_size = 0.2, random_state = 1)
     x_train, x_val, y_train, y_val = sms.train_test_split(x_train, y_train, test_size = 0.25, random_state = 1)
 
     y_hot = np.zeros([len(y_train), 2])
     for i in range(len(y_train)):
-        y_hot[i][y[i]] = 1
+        y_hot[i][y_train[i]] = 1
     lambd = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 300, 600, 900]
 
     theta1 = np.random.random((25, len(x_train[0]) + 1)) * (2*0.12)  - 0.12
@@ -98,6 +98,6 @@ def main():
     X = np.concatenate((XSpam, XEasy, XHard), axis=0)
     y = np.concatenate((ySpam, yEasy, yHard), axis=0)
 
-    withLogisticRegresion(X, y)
+    withNN(X, y)
 
 main()
